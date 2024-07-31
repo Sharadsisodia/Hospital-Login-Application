@@ -54,8 +54,13 @@ def loginpage(request):
             'incorrectPass':'Incorrect username or password'
         }
         return render(request, 'index.html',context)
+
+
 def signupComp(request):
     if request.method=='POST':
+        patientData=patient.objects.all()
+        doctorData=doctor.objects.all()
+
         f_name=request.POST.get('firstName')
         l_name=request.POST.get('lastName')
         picture=request.FILES.get('profilePicture')
@@ -67,12 +72,25 @@ def signupComp(request):
         state=request.POST.get('state')
         pincode=request.POST.get('pincode')
         role=request.POST.get('role')
-        
-        if role=='patient':
-            entryData=patient(p_Firstname=f_name, p_Lastname=l_name, p_Picture=picture, p_Username=userName, p_EmailId=eMail, p_Password=password, p_AddressLi=addr1, p_City=city, p_State=state, p_Pincode=pincode)
-            entryData.save()
-        else:
-            entryData=doctor(d_Firstname=f_name, d_Lastname=l_name, d_Picture=picture, d_Username=userName, d_EmailId=eMail, d_Password=password, d_AddressLi=addr1, d_City=city, d_State=state, d_Pincode=pincode)
-            entryData.save()
 
-        return render(request,"signupComp.html")
+
+        if role=='patient':
+            for da in patientData:
+                if(da.p_Username!=userName):
+                    entryData=patient(p_Firstname=f_name, p_Lastname=l_name, p_Picture=picture, p_Username=userName, p_EmailId=eMail, p_Password=password, p_AddressLi=addr1, p_City=city, p_State=state, p_Pincode=pincode)
+                    entryData.save()
+                    return render(request,"signupComp.html")
+            context={
+                'usernameExist':'Username already exist, Try using with different username'
+            }
+            return render(request, 'signupForm.html',context)
+        else:
+            for da in doctorData:
+                if(da.d_Username!=userName):
+                    entryData=doctor(d_Firstname=f_name, d_Lastname=l_name, d_Picture=picture, d_Username=userName, d_EmailId=eMail, d_Password=password, d_AddressLi=addr1, d_City=city, d_State=state, d_Pincode=pincode)
+                    entryData.save()
+                    return render(request,"signupComp.html")
+            context={
+                'usernameExist':'Username already exist, Try using with different username'
+            }
+            return render(request, 'signupForm.html',context)
